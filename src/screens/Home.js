@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { StatusBar } from "expo-status-bar";
 import Header from "../components/Header";
 import InputArea from '../components/Input';
+import TodoItem from '../components/TaskItem';
 
 const Home = () => {
 
@@ -24,6 +25,21 @@ const Home = () => {
     setTaskList([...taskList, newTask]); 
     setTask(''); 
   };
+
+// delete task function
+const deleteLevel = (id) => {
+ 
+  setTaskList(prev => prev.filter(t => t.id !== id));
+};
+
+// toggle complete function
+const toggleComplete = (id) => {
+  
+  setTaskList(prev => prev.map(t => 
+    t.id === id ? { ...t, completed: !t.completed } : t
+  ));
+};
+
   return (
     <View>
         <Header />
@@ -37,11 +53,11 @@ const Home = () => {
         data={taskList}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <View className="bg-gray-100 p-4 mb-2 rounded-lg shadow-sm">
-            
-            <Text className="text-gray-800 text-lg">{item.text}</Text>
-          
-          </View>
+          <TodoItem 
+            item={item} 
+            onDelete={deleteLevel} 
+            onToggle={toggleComplete}
+          />
         )}
       />
         <StatusBar style="auto" />
