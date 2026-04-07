@@ -5,6 +5,7 @@ import Header from "../components/Header";
 import InputArea from '../components/Input';
 import TodoItem from '../components/TaskItem';
 import { storageService } from '../services/storageService';
+import { Ionicons } from '@expo/vector-icons';
 
 const Home = () => {
 
@@ -56,7 +57,7 @@ const toggleComplete = async (id) => {
 };
 
   return (
-    <View>
+    <View className="flex-1 bg-white">
         <Header />
         <InputArea 
         task={task} 
@@ -64,9 +65,19 @@ const toggleComplete = async (id) => {
         onAdd={handleAddTask}
         />
 
+{(!taskList || taskList.length === 0) ? (
+  // Empty State 
+   <View className="flex-1 justify-center items-center  px-10">
+    <Ionicons name="clipboard-outline" size={80} color="#0b53c0" />
+    <Text className="text-gray-500 text-lg text-center mt-4 font-medium">
+      No tasks available. Add your first task!
+    </Text>
+  </View>
+       
+ 
+) : (
 
-
-        <FlatList
+    <FlatList
         data={taskList}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
@@ -77,7 +88,7 @@ const toggleComplete = async (id) => {
           />
         )}
       />
-
+      )}
 
 
         <StatusBar style="auto" />
