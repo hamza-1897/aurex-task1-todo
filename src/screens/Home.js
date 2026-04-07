@@ -1,9 +1,10 @@
 import { View, Text,FlatList } from 'react-native'
-import { useState } from 'react';
+import { useState , useEffect } from 'react';
 import { StatusBar } from "expo-status-bar";
 import Header from "../components/Header";
 import InputArea from '../components/Input';
 import TodoItem from '../components/TaskItem';
+import { storageService } from '../services/storageService';
 
 const Home = () => {
 
@@ -11,9 +12,17 @@ const Home = () => {
   const [task, setTask] = useState(''); 
   const [taskList, setTaskList] = useState([]); 
 
+// Load tasks from storage 
+useEffect(() => {
+  const fetchTasks = async () => {
+    const storedTasks = await storageService.loadTasks();
+    setTaskList(storedTasks);
+  };
+  fetchTasks();
+}, []);
 
   //Add Task Function
-  const handleAddTask = () => {
+  const handleAddTask = async () => {
     if (task.trim().length === 0) return;
 
     const newTask = {
@@ -22,22 +31,28 @@ const Home = () => {
       completed: false,
     };
 
-    setTaskList([...taskList, newTask]); 
-    setTask(''); 
+   const newList = [...taskList, newTask];
+  setTaskList(newList);
+  setTask('');
+    await storageService.saveTasks(newList);
   };
 
 // delete task function
-const deleteLevel = (id) => {
+const deleteLevel = async (id) => {
  
-  setTaskList(prev => prev.filter(t => t.id !== id));
+  const newList = taskList.filter(item => item.id !== id);
+  setTaskList(newList);
+  await storageService.saveTasks(newList);
 };
 
 // toggle complete function
-const toggleComplete = (id) => {
+const toggleComplete = async (id) => {
   
-  setTaskList(prev => prev.map(t => 
-    t.id === id ? { ...t, completed: !t.completed } : t
-  ));
+ const newList = taskList.map(item => 
+    item.id === id ? { ...item, completed: !item.completed } : item
+  );
+  setTaskList(newList);
+  await storageService.saveTasks(newList);
 };
 
   return (
@@ -48,6 +63,8 @@ const toggleComplete = (id) => {
         setTask={setTask} 
         onAdd={handleAddTask}
         />
+
+
 
         <FlatList
         data={taskList}
@@ -60,6 +77,9 @@ const toggleComplete = (id) => {
           />
         )}
       />
+
+
+
         <StatusBar style="auto" />
 
     </View>
